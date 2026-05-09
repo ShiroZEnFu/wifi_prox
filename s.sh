@@ -31,11 +31,11 @@ echo "Codename: $CODENAME"
 CEPH_REPO_PATH="ceph-squid"
 
 echo "[2/7] Disabling enterprise repositories (if present)..."
-for f in /etc/apt/sources.list.d/pve-enterprise.list /etc/apt/sources.list.d/ceph.list; do
-  if [[ -f "$f" ]]; then
-    cp -a "$f" "${f}.bak.$(date +%s)"
-    sed -i 's/^[[:space:]]*deb[[:space:]]/# deb /' "$f"
-  fi
+for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list /etc/apt/sources.list.d/*.sources; do
+  [[ -e "$f" ]] || continue
+  cp -a "$f" "${f}.bak.$(date +%s)"
+  # Works for both classic .list and deb822 .sources files.
+  sed -i -E '/enterprise\.proxmox\.com/s/^[[:space:]]*/# /' "$f"
 done
 
 echo "[3/7] Adding no-subscription repositories..."
